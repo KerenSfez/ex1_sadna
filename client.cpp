@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <math.h>
 #include <valarray>
+#include <sys/time.h>
 
 
 
@@ -57,7 +58,9 @@ int main(int argc, char const *argv[]) {
       char buffer[message_size];
       memset(buffer, 'A', message_size);
 
-      auto start = std::chrono::high_resolution_clock::now();
+//      auto start = std::chrono::high_resolution_clock::now();
+      timeval start, end ;
+      gettimeofday (&start, nullptr);
       size_t total_bytes_sent = 0;
       while (total_bytes_sent < message_size * 10000) {
           int byte_sent = send(sock, buffer, message_size, 0);
@@ -75,8 +78,10 @@ int main(int argc, char const *argv[]) {
 
       if (!is_warm_up_phase)
       {
-        auto end = std::chrono::high_resolution_clock::now ();
-        double elapsed = std::chrono::duration_cast<std::chrono::microseconds> (end - start).count ();
+//        auto end = std::chrono::high_resolution_clock::now ();
+//        double elapsed = std::chrono::duration_cast<std::chrono::microseconds> (end - start).count ();
+          gettimeofday (&end, nullptr);
+          double duration = (double) (end.tv_sec - start.tv_sec)*1000000 + (double) (end.tv_usec - start.tv_usec);
 
         double throughput = (message_size * 10000) / elapsed;
         std::cout << message_size << "\t" << round(throughput * 100000)
