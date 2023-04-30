@@ -83,7 +83,7 @@ int main(int argc, char const *argv[]) {
           gettimeofday (&end, nullptr);
           double duration = (double) (end.tv_sec - start.tv_sec)*1000000 + (double) (end.tv_usec - start.tv_usec);
 
-        double throughput = (message_size * 10000) / elapsed;
+        double throughput = (message_size * 10000) / duration;
         std::cout << message_size << "\t" << round(throughput * 100000)
         / 100000 << "\tbytes/microseconds" << std::endl;
 
