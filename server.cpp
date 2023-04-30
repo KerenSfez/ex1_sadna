@@ -31,11 +31,11 @@ int set_up_socket(struct sockaddr_in address) {
   address.sin_port = htons(port);
 
   if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-      return close_before_exit ("bind failed", -1, server_fd);
+      return close_before_exit ((char *)"bind failed", -1, server_fd);
     }
 
   if (listen(server_fd, 3) < 0) {
-      return close_before_exit ("listen", -1, server_fd);
+      return close_before_exit ((char *)"listen", -1, server_fd);
     }
 
   return server_fd;
@@ -52,7 +52,7 @@ int main() {
   bool is_warm_up_phase = true;
   while (true) {
       if ((client_fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
-          return close_before_exit ("accept", client_fd, server_fd);
+          return close_before_exit ((char *)"accept", client_fd, server_fd);
         }
 
       size_t message_size = 1;
@@ -64,14 +64,14 @@ int main() {
           while (total_bytes_sent < message_size * 10000) {
               int bytes_recv = recv(client_fd, buffer, message_size, 0);
               if (bytes_recv == -1) {
-                  return close_before_exit ("recv", client_fd, server_fd);
+                  return close_before_exit ((char *)"recv", client_fd, server_fd);
                 }
               total_bytes_sent += bytes_recv;
             }
 
           char ack = 0;
           if (send(client_fd, &ack, sizeof(ack), 0) != sizeof(ack)) {
-              return close_before_exit ("ack", client_fd, server_fd);
+              return close_before_exit ((char *)"ack", client_fd, server_fd);
             }
 
           if (!is_warm_up_phase) {

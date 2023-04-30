@@ -35,11 +35,11 @@ int set_up_socket(int argc, char const *argv[]) {
   serv_addr.sin_port = htons(8080);
 
   if (inet_pton(AF_INET, server_ip, &serv_addr.sin_addr) <= 0) {
-      return close_before_exit ("innet_pton", sock);
+      return close_before_exit ((char *)"innet_pton", sock);
     }
 
   if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-      return close_before_exit ("connect", sock);
+      return close_before_exit ((char *)"connect", sock);
     }
     return sock;
 }
@@ -63,14 +63,14 @@ int main(int argc, char const *argv[]) {
           int byte_sent = send(sock, buffer, message_size, 0);
 
           if (byte_sent != message_size) {
-              return close_before_exit ("send", sock);
+              return close_before_exit ((char *)"send", sock);
             }
           total_bytes_sent += byte_sent;
         }
 
       char ack;
       if (recv(sock, &ack, sizeof(ack), 0) != sizeof(ack)) {
-          return close_before_exit ("ack", sock);
+          return close_before_exit ((char *)"ack", sock);
         }
 
       if (!is_warm_up_phase)
