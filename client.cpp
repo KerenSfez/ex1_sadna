@@ -8,6 +8,7 @@
 #include <valarray>
 
 
+
 int close_before_exit(char* error, int socket_fd) {
   perror (error);
   close(socket_fd);
@@ -57,7 +58,7 @@ int main(int argc, char const *argv[]) {
 
       auto start = std::chrono::high_resolution_clock::now();
       size_t total_bytes_sent = 0;
-      while (total_bytes_sent < message_size * 10000) {
+      while (total_bytes_sent < message_size * 100000) {
           int byte_sent = send(sock, buffer, message_size, 0);
 
           if (byte_sent != message_size) {

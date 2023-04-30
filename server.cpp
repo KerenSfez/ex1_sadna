@@ -48,6 +48,7 @@ int main() {
   int server_fd = set_up_socket(address);
   if (server_fd == 1) return 1;
 
+
   bool is_warm_up_phase = true;
   while (true) {
       if ((client_fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
@@ -60,7 +61,7 @@ int main() {
       while (message_size <= max_size) {
           char buffer[message_size];
           size_t total_bytes_sent = 0;
-          while (total_bytes_sent < message_size * 10000) {
+          while (total_bytes_sent < message_size * 100000) {
               int bytes_recv = recv(client_fd, buffer, message_size, 0);
               if (bytes_recv == -1) {
                   return close_before_exit ("recv", client_fd, server_fd);
