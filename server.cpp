@@ -61,7 +61,7 @@ int main() {
       while (message_size <= max_size) {
           char buffer[message_size];
           size_t total_bytes_sent = 0;
-          while (total_bytes_sent < message_size * 100000) {
+          while (total_bytes_sent < message_size * 10000) {
               int bytes_recv = recv(client_fd, buffer, message_size, 0);
               if (bytes_recv == -1) {
                   return close_before_exit ("recv", client_fd, server_fd);
