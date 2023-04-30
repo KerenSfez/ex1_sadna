@@ -5,6 +5,7 @@
 #include <string.h>
 #include <chrono>
 #include <cstdint>
+#include <math.h>
 #include <valarray>
 
 
@@ -78,7 +79,8 @@ int main(int argc, char const *argv[]) {
         double elapsed = std::chrono::duration_cast<std::chrono::microseconds> (end - start).count ();
 
         double throughput = (message_size * 10000) / elapsed;
-        std::cout << message_size << "\t" << throughput << "\tbytes/microseconds" << std::endl;
+        std::cout << message_size << "\t" << round(throughput * 10000)
+        / 100000 << "\tbytes/microseconds" << std::endl;
 
         message_size *= 2;
       } else {
