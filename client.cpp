@@ -9,31 +9,36 @@
 #include <valarray>
 #include <sys/time.h>
 
-
+#define USAGE_INPUT "Usage: client <server-ip>"
+#define CONSTANT_PORT 8080
+#define SUCCESS 0
+#define FAILURE 1
+#define NUM_MESSAGES 10000
+#define INITIAL_MESSAGE_SIZE 1
 
 int close_before_exit(char* error, int socket_fd) {
   perror (error);
   close(socket_fd);
-  return 1;
+  return FAILURE;
 }
 
 int set_up_socket(int argc, char const *argv[]) {
   if (argc != 2) {
-      std::cerr << "Usage: client <server-ip>" << std::endl;
-      return 1;
+      std::cerr << USAGE_INPUT << std::endl;
+      return FAILURE;
     }
 
-  int sock = 0, valread;
+  int sock = 0;
   struct sockaddr_in serv_addr;
   const char *server_ip = argv[1];
 
   if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
       perror("socket");
-      return 1;
+      return FAILURE;
     }
 
   serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(8080);
+  serv_addr.sin_port = htons(CONSTANT_PORT);
 
   if (inet_pton(AF_INET, server_ip, &serv_addr.sin_addr) <= 0) {
       return close_before_exit ((char *)"innet_pton", sock);
@@ -47,22 +52,20 @@ int set_up_socket(int argc, char const *argv[]) {
 
 
 int main(int argc, char const *argv[]) {
-  int valread;
   int sock = set_up_socket (argc, argv);
-  if (sock == 1) return 1;
+  if (sock == FAILURE) return FAILURE;
 
-  size_t message_size = 1;
+  size_t message_size = INITIAL_MESSAGE_SIZE;
   size_t max_size = std::pow(2, 20);
   bool is_warm_up_phase = true;
   while (message_size <= max_size) {
       char buffer[message_size];
       memset(buffer, 'A', message_size);
 
-//      auto start = std::chrono::high_resolution_clock::now();
       timeval start, end ;
       gettimeofday (&start, nullptr);
       size_t total_bytes_sent = 0;
-      while (total_bytes_sent < message_size * 10000) {
+      while (total_bytes_sent < message_size * NUM_MESSAGES) {
           int byte_sent = send(sock, buffer, message_size, 0);
 
           if (byte_sent != message_size) {
@@ -78,12 +81,10 @@ int main(int argc, char const *argv[]) {
 
       if (!is_warm_up_phase)
       {
-//        auto end = std::chrono::high_resolution_clock::now ();
-//        double elapsed = std::chrono::duration_cast<std::chrono::microseconds> (end - start).count ();
           gettimeofday (&end, nullptr);
           double duration = (double) (end.tv_sec - start.tv_sec)*1000000 + (double) (end.tv_usec - start.tv_usec);
 
-        double throughput = (message_size * 10000) / duration;
+        double throughput = (message_size * NUM_MESSAGES) / duration;
         std::cout << message_size << "\t" << round(throughput * 100000)
         / 100000 << "\tbytes/microseconds" << std::endl;
 
@@ -93,10 +94,6 @@ int main(int argc, char const *argv[]) {
       }
     }
 
-  char server_reply[3];
-  valread = read(sock, server_reply, 2);
-  server_reply[valread] = '\0';
-  std::cout << "Server: " << server_reply << std::endl;
   close(sock);
-  return 0;
+  return SUCCESS;
 }

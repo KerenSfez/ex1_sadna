@@ -6,6 +6,11 @@
 #include <cstdint>
 #include <valarray>
 
+#define CONSTANT_PORT 8080
+#define SUCCESS 0
+#define FAILURE 1
+#define NUM_MESSAGES 10000
+#define INITIAL_MESSAGE_SIZE 1
 
 int close_before_exit(char* error, int client_fd, int server_fd) {
   perror (error);
@@ -14,16 +19,16 @@ int close_before_exit(char* error, int client_fd, int server_fd) {
       close (client_fd);
     }
   close(server_fd);
-  return 1;
+  return FAILURE;
 }
 
 int set_up_socket(struct sockaddr_in address) {
   int server_fd;
-  int port = 8080;
+  int port = CONSTANT_PORT;
 
   if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
       perror("socket failed");
-      return 1;
+      return FAILURE;
     }
 
   address.sin_family = AF_INET;
@@ -42,11 +47,11 @@ int set_up_socket(struct sockaddr_in address) {
 }
 
 int main() {
-  int client_fd, valread;
+  int client_fd;
   struct sockaddr_in address;
   int addrlen = sizeof(address);
   int server_fd = set_up_socket(address);
-  if (server_fd == 1) return 1;
+  if (server_fd == FAILURE) return FAILURE;
 
 
   bool is_warm_up_phase = true;
@@ -55,13 +60,13 @@ int main() {
           return close_before_exit ((char *)"accept", client_fd, server_fd);
         }
 
-      size_t message_size = 1;
+      size_t message_size = INITIAL_MESSAGE_SIZE;
       size_t max_size = std::pow(2, 20);
 
       while (message_size <= max_size) {
           char buffer[message_size];
           size_t total_bytes_sent = 0;
-          while (total_bytes_sent < message_size * 10000) {
+          while (total_bytes_sent < message_size * NUM_MESSAGES) {
               int bytes_recv = recv(client_fd, buffer, message_size, 0);
               if (bytes_recv == -1) {
                   return close_before_exit ((char *)"recv", client_fd, server_fd);
@@ -81,10 +86,9 @@ int main() {
           }
         }
 
-      send(client_fd, "OK", 2, 0);
       close(client_fd);
       close(server_fd);
     }
 
-  return 0;
+  return SUCCESS;
 }
